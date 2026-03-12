@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "engage-mcp": {
+      "command": "engage-mcp",
+      "args": [
+        "--mode",
+        "readonly"
+      ]
+    }
+  }
+}

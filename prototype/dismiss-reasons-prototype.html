@@ -905,6 +905,13 @@
   // ══════════════════════════════════════════
   function confirmDismiss(optionNum) {
     closeDialog(optionNum);
+    // Clear chip selections after successful submit so next card starts fresh
+    var dialog = document.getElementById('dialog-' + optionNum);
+    if (dialog) {
+      dialog.querySelectorAll('.reason-chip.selected').forEach(function(c) { c.classList.remove('selected'); });
+      var ft = dialog.querySelector('.free-text-area');
+      if (ft) { ft.classList.remove('visible'); var ta = ft.querySelector('textarea'); if (ta) ta.value = ''; }
+    }
     if (activeCardId) {
       showToast('Suggestion dismissed');
       if (surfaceMode === 'feed') {
