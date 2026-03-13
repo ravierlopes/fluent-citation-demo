@@ -418,17 +418,23 @@
     .message-bar-dismiss:hover { background: var(--colorSubtleBackgroundHover); }
     .message-bar-dismiss svg { width: 16px; height: 16px; fill: currentColor; }
 
-    /* ── Sticky Footer (Option 3) ── */
-    .sticky-footer {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    /* ── Floating Card (Option 3) ── */
+    .floating-feedback-card {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+      z-index: 50;
       background: var(--colorNeutralBackground1);
-      border-top: 1px solid var(--colorNeutralStroke2);
-      box-shadow: 0 -2px 8px var(--colorNeutralShadowAmbient);
-      padding: 12px 24px; display: none; align-items: center; gap: 16px;
-      animation: slideUp var(--durationSlow) var(--curveDecelerateMax);
+      border: 1px solid var(--colorNeutralStroke1);
+      border-radius: var(--borderRadius-xLarge);
+      box-shadow: var(--shadow16);
+      padding: 16px 20px; display: none; align-items: center; gap: 16px;
+      max-width: 640px;
+      animation: floatUp var(--durationSlow) var(--curveDecelerateMax);
     }
-    .sticky-footer.visible { display: flex; }
-    .sticky-footer-text { font-size: var(--fontSize-base-300); color: var(--colorNeutralForeground2); white-space: nowrap; }
+    .floating-feedback-card.visible { display: flex; }
+    .floating-feedback-card-text {
+      font-size: var(--fontSize-base-300); font-weight: var(--fontWeight-semibold);
+      color: var(--colorNeutralForeground1); white-space: nowrap;
+    }
 
     /* ── Inline Survey (Option 4) ── */
     .inline-survey {
@@ -491,6 +497,7 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes floatUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   </style>
 </head>
 <body>
@@ -501,7 +508,7 @@
   <div class="option-tabs">
     <button class="option-tab active" onclick="showOption(1)">Option 1: Enhanced Dialog</button>
     <button class="option-tab" onclick="showOption(2)">Option 2: MessageBar + Dialog</button>
-    <button class="option-tab" onclick="showOption(3)">Option 3: Sticky Footer</button>
+    <button class="option-tab" onclick="showOption(3)">Option 3: Floating Card</button>
     <button class="option-tab" onclick="showOption(4)">Option 4: Inline Survey</button>
   </div>
   <div class="surface-toggle">
@@ -611,7 +618,7 @@
   <div class="page-container">
     <div class="option-info-bar">
       <span>ℹ️</span>
-      <div><strong>Option 3 — Sticky Footer Bar:</strong> After dismiss, a viewport-anchored bar slides up from the bottom with reason chips. Auto-dismisses after 8 seconds. <span class="surface-badge suggestion-page" id="badge-3">📋 Suggestion Page</span></div>
+      <div><strong>Option 3 — Floating Card:</strong> After dismiss, a floating card appears at the bottom of the screen with reason chips. Auto-dismisses after 8 seconds. <span class="surface-badge suggestion-page" id="badge-3">📋 Suggestion Page</span></div>
     </div>
     <div class="page-header">
       <div class="page-header-left">
@@ -631,8 +638,8 @@
     </div>
     <div id="cards-3"></div>
   </div>
-  <div class="sticky-footer" id="stickyFooter">
-    <span class="sticky-footer-text">What was wrong?</span>
+  <div class="floating-feedback-card" id="stickyFooter">
+    <span class="floating-feedback-card-text">What was wrong?</span>
     <div class="reason-chips" id="chips-footer"></div>
     <button class="message-bar-dismiss" onclick="hideFooter()" title="Close" aria-label="Close"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
   </div>
@@ -838,8 +845,8 @@
   // ── Option Switching ──
   var descriptions = {
     1: 'Adds reason chips inside the existing dismiss confirmation dialog.',
-    2: 'After dismiss, MessageBar shows a "Share feedback" button \u2192 opens a dialog.',
-    3: 'After dismiss, a persistent footer bar slides up from the bottom with reason chips.',
+    2: 'After dismiss, MessageBar shows "Why did you dismiss?" \u2192 opens a dialog. Per-card bars.',
+    3: 'After dismiss, a floating card appears at the bottom with reason chips.',
     4: 'After dismiss, inline survey appears in the card \u2014 no dialog, no popup.'
   };
 
@@ -1010,21 +1017,17 @@
 
   function submitFeedback2() {
     closeDialog(2);
-    // Update the bar to confirmation state (keep visible, remove action button)
+    // Keep bar visible with original text, just hide the action button
     if (activeCardId) {
       // Page-level bar (suggestion mode)
       var pageBar = document.getElementById('pageMsgBar-' + activeCardId);
       if (pageBar) {
-        var body = pageBar.querySelector('.message-bar-body');
-        if (body) body.textContent = 'Thanks for your feedback.';
         var actions = pageBar.querySelector('.message-bar-secondary-actions');
         if (actions) actions.style.display = 'none';
       }
       // Inline bar (feed mode)
       var inlineBar = document.getElementById('inlineMsgBar-' + activeCardId);
       if (inlineBar) {
-        var body2 = inlineBar.querySelector('.message-bar-body');
-        if (body2) body2.textContent = 'Thanks for your feedback.';
         var actions2 = inlineBar.querySelector('.message-bar-secondary-actions');
         if (actions2) actions2.style.display = 'none';
       }
