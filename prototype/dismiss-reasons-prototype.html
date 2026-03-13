@@ -336,37 +336,87 @@
     .reason-radio-item label { font-size: var(--fontSize-base-300); cursor: pointer; }
     .reason-radio-item.selected { background: #f0f2ff; }
 
-    /* ── MessageBar ── */
-    .message-bar {
-      display: none; align-items: center; gap: 12px;
-      padding: 10px 16px; border-radius: var(--borderRadius-medium);
-      background: var(--colorNeutralBackground4); margin-bottom: 16px;
-      animation: fadeIn var(--durationNormal) var(--curveEasyEase);
-    }
-    .message-bar.visible { display: flex; }
-    .message-bar-icon { font-size: 16px; color: var(--colorNeutralForeground2); }
-    .message-bar-text { flex: 1; font-size: var(--fontSize-base-300); }
-    .message-bar-action {
-      font-family: var(--fontFamily-base); font-size: var(--fontSize-base-200);
-      font-weight: var(--fontWeight-semibold); color: var(--colorBrandForegroundLink);
-      background: none; border: none; cursor: pointer; padding: 4px 8px;
-      border-radius: var(--borderRadius-medium); white-space: nowrap;
-    }
-    .message-bar-action:hover { background: var(--colorSubtleBackgroundHover); text-decoration: underline; }
-    .message-bar-close {
-      background: none; border: none; cursor: pointer; font-size: 14px;
-      color: var(--colorNeutralForeground3); padding: 4px; border-radius: var(--borderRadius-medium);
-    }
-    .message-bar-close:hover { background: var(--colorSubtleBackgroundHover); }
-
-    /* Inline MessageBar (inside card, for feed mode) */
+    /* ── Fluent 2 MessageBar ── */
+    .message-bar,
     .inline-message-bar {
-      display: none; align-items: center; gap: 12px;
-      padding: 10px 16px; border-radius: var(--borderRadius-medium);
-      background: var(--colorNeutralBackground4); margin-top: 16px;
+      display: none;
+      grid-template-columns: auto 1fr auto auto;
+      grid-template-rows: 1fr;
+      grid-template-areas: "icon body secondaryActions actions";
+      align-items: center;
+      padding-left: 12px;
+      border: 1px solid var(--colorNeutralStroke1);
+      border-radius: var(--borderRadius-medium);
+      background-color: var(--colorNeutralBackground3);
+      min-height: 36px;
+      box-sizing: border-box;
       animation: fadeIn var(--durationNormal) var(--curveEasyEase);
     }
-    .inline-message-bar.visible { display: flex; }
+    .message-bar.visible,
+    .inline-message-bar.visible { display: grid; }
+    .message-bar { margin-bottom: 16px; }
+    .inline-message-bar { margin-top: 16px; }
+
+    .message-bar-icon {
+      grid-area: icon;
+      display: flex;
+      align-items: center;
+      margin-right: 8px;
+      color: var(--colorNeutralForeground3);
+      font-size: var(--fontSize-base-500);
+      line-height: 1;
+    }
+    .message-bar-icon svg { width: 16px; height: 16px; fill: currentColor; }
+    .message-bar-body {
+      grid-area: body;
+      font-size: var(--fontSize-base-300);
+      line-height: var(--lineHeight-base-300);
+      color: var(--colorNeutralForeground1);
+      padding-right: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .message-bar-body strong {
+      font-weight: var(--fontWeight-semibold);
+    }
+    .message-bar-secondary-actions {
+      grid-area: secondaryActions;
+      display: flex;
+      align-items: center;
+      column-gap: 12px;
+      padding-right: 12px;
+    }
+    .message-bar-action {
+      font-family: var(--fontFamily-base);
+      font-size: var(--fontSize-base-300);
+      font-weight: var(--fontWeight-regular);
+      color: var(--colorBrandForegroundLink);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px 0;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .message-bar-action:hover { text-decoration: underline; }
+    .message-bar-dismiss {
+      grid-area: actions;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      border-radius: var(--borderRadius-medium);
+      color: var(--colorNeutralForeground1);
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+    .message-bar-dismiss:hover { background: var(--colorSubtleBackgroundHover); }
+    .message-bar-dismiss svg { width: 16px; height: 16px; fill: currentColor; }
 
     /* ── Sticky Footer (Option 3) ── */
     .sticky-footer {
@@ -482,9 +532,9 @@
       <span class="filter-time">Last 28 days 🕐</span>
     </div>
     <div class="message-bar" id="msgBar-1">
-      <span class="message-bar-icon">ℹ️</span>
-      <span class="message-bar-text">Suggestion dismissed.</span>
-      <button class="message-bar-close" onclick="this.parentElement.classList.remove('visible')">✕</button>
+      <span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>
+      <span class="message-bar-body">Suggestion dismissed.</span>
+      <button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest('.message-bar').classList.remove('visible')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
     </div>
     <div id="cards-1"></div>
   </div>
@@ -532,10 +582,10 @@
       <span class="filter-time">Last 28 days 🕐</span>
     </div>
     <div class="message-bar" id="msgBar-2">
-      <span class="message-bar-icon">ℹ️</span>
-      <span class="message-bar-text">Suggestion dismissed.</span>
-      <button class="message-bar-action" onclick="openDialog(2)">Share feedback</button>
-      <button class="message-bar-close" onclick="this.parentElement.classList.remove('visible')">✕</button>
+      <span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>
+      <span class="message-bar-body">Suggestion dismissed.</span>
+      <span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2)">Share feedback</button></span>
+      <button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest('.message-bar').classList.remove('visible')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
     </div>
     <div id="cards-2"></div>
   </div>
@@ -580,16 +630,16 @@
       <span class="filter-time">Last 28 days 🕐</span>
     </div>
     <div class="message-bar" id="msgBar-3">
-      <span class="message-bar-icon">ℹ️</span>
-      <span class="message-bar-text">Suggestion dismissed.</span>
-      <button class="message-bar-close" onclick="this.parentElement.classList.remove('visible')">✕</button>
+      <span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>
+      <span class="message-bar-body">Suggestion dismissed.</span>
+      <button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest('.message-bar').classList.remove('visible')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
     </div>
     <div id="cards-3"></div>
   </div>
   <div class="sticky-footer" id="stickyFooter">
     <span class="sticky-footer-text">What was wrong?</span>
     <div class="reason-chips" id="chips-footer"></div>
-    <button class="message-bar-close" onclick="hideFooter()" title="Close" aria-label="Close">✕</button>
+    <button class="message-bar-dismiss" onclick="hideFooter()" title="Close" aria-label="Close"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
   </div>
 </div>
 
@@ -614,9 +664,9 @@
       <span class="filter-time">Last 28 days 🕐</span>
     </div>
     <div class="message-bar" id="msgBar-4">
-      <span class="message-bar-icon">ℹ️</span>
-      <span class="message-bar-text">Suggestion dismissed.</span>
-      <button class="message-bar-close" onclick="this.parentElement.classList.remove('visible')">✕</button>
+      <span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>
+      <span class="message-bar-body">Suggestion dismissed.</span>
+      <button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest('.message-bar').classList.remove('visible')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
     </div>
     <div id="cards-4"></div>
   </div>
@@ -677,13 +727,13 @@
     // Option 1 & 2: inline message bar for feed mode
     if (optionNum === 1 || optionNum === 2) {
       var feedbackBtn = optionNum === 2
-        ? '<button class="message-bar-action" onclick="openDialog(2, \'' + id + '\')">Share feedback</button>'
+        ? '<span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2, \'' + id + '\')">Share feedback</button></span>'
         : '';
       extra = '<div class="inline-message-bar" id="inlineMsgBar-' + id + '">'
-        + '<span class="message-bar-icon">\u2139\uFE0F</span>'
-        + '<span class="message-bar-text" style="flex:1;">Suggestion dismissed.</span>'
+        + '<span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>'
+        + '<span class="message-bar-body">Suggestion dismissed.</span>'
         + feedbackBtn
-        + '<button class="message-bar-close" onclick="this.parentElement.classList.remove(\'visible\')">\u2715</button>'
+        + '<button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest(\'.inline-message-bar\').classList.remove(\'visible\')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>'
         + '</div>';
     }
 
