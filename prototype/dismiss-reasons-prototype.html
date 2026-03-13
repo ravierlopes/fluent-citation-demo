@@ -568,7 +568,7 @@
   <div class="page-container">
     <div class="option-info-bar">
       <span>ℹ️</span>
-      <div><strong>Option 2 — MessageBar + Separate Dialog:</strong> After dismiss, a MessageBar appears with a "Share feedback" button that opens a dialog. Two-step but non-blocking. <span class="surface-badge suggestion-page" id="badge-2">📋 Suggestion Page</span></div>
+      <div><strong>Option 2 — MessageBar + Separate Dialog:</strong> After dismiss, a MessageBar appears with a "Why did you dismiss?" link that opens a dialog. Each dismissed question gets its own bar. <span class="surface-badge suggestion-page" id="badge-2">📋 Suggestion Page</span></div>
     </div>
     <div class="page-header">
       <div class="page-header-left">
@@ -581,12 +581,7 @@
       <button class="filter-dropdown" id="filterCount-2">Needs review (3) ▾</button>
       <span class="filter-time">Last 28 days 🕐</span>
     </div>
-    <div class="message-bar" id="msgBar-2">
-      <span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>
-      <span class="message-bar-body">Suggestion dismissed.</span>
-      <span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2)">Share feedback</button></span>
-      <button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest('.message-bar').classList.remove('visible')"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>
-    </div>
+    <div id="msgBarContainer-2"></div>
     <div id="cards-2"></div>
   </div>
   <!-- Feedback Dialog -->
@@ -727,7 +722,7 @@
     // Option 1 & 2: inline message bar for feed mode
     if (optionNum === 1 || optionNum === 2) {
       var feedbackBtn = optionNum === 2
-        ? '<span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2, \'' + id + '\')">Share feedback</button></span>'
+        ? '<span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2, \'' + id + '\')">Why did you dismiss?</button></span>'
         : '';
       extra = '<div class="inline-message-bar" id="inlineMsgBar-' + id + '">'
         + '<span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>'
@@ -988,7 +983,20 @@
     if (surfaceMode === 'suggestion') {
       dismissCardVisual(cardId);
       showToast('Suggestion dismissed');
-      setTimeout(function() { document.getElementById('msgBar-2').classList.add('visible'); }, 400);
+      // Insert a per-card MessageBar at the top of the container
+      setTimeout(function() {
+        var container = document.getElementById('msgBarContainer-2');
+        if (container) {
+          var bar = document.createElement('div');
+          bar.className = 'message-bar visible';
+          bar.id = 'pageMsgBar-' + cardId;
+          bar.innerHTML = '<span class="message-bar-icon"><svg viewBox="0 0 16 16"><path d="M8 2a6 6 0 1 1 0 12A6 6 0 0 0 8 2Zm.5 8.5a.5.5 0 0 1-1 0V7a.5.5 0 0 1 1 0v3.5ZM8 5.5A.75.75 0 1 0 8 4a.75.75 0 0 0 0 1.5Z"/></svg></span>'
+            + '<span class="message-bar-body">Suggestion dismissed.</span>'
+            + '<span class="message-bar-secondary-actions"><button class="message-bar-action" onclick="openDialog(2, \'' + cardId + '\')">Why did you dismiss?</button></span>'
+            + '<button class="message-bar-dismiss" aria-label="Dismiss" onclick="this.closest(\'.message-bar\').remove()"><svg viewBox="0 0 16 16"><path d="M3.15 3.15a.5.5 0 0 1 .7 0L8 7.29l4.15-4.14a.5.5 0 0 1 .7.7L8.71 8l4.14 4.15a.5.5 0 0 1-.7.7L8 8.71l-4.15 4.14a.5.5 0 0 1-.7-.7L7.29 8 3.15 3.85a.5.5 0 0 1 0-.7Z"/></svg></button>';
+          container.prepend(bar);
+        }
+      }, 400);
     } else {
       // Feed mode: hide action buttons only (no dimming), show inline message bar
       var actionBar = document.getElementById('actionBar-' + cardId);
@@ -1002,10 +1010,24 @@
 
   function submitFeedback2() {
     closeDialog(2);
-    document.getElementById('msgBar-2').classList.remove('visible');
+    // Update the bar to confirmation state (keep visible, remove action button)
     if (activeCardId) {
+      // Page-level bar (suggestion mode)
+      var pageBar = document.getElementById('pageMsgBar-' + activeCardId);
+      if (pageBar) {
+        var body = pageBar.querySelector('.message-bar-body');
+        if (body) body.textContent = 'Thanks for your feedback.';
+        var actions = pageBar.querySelector('.message-bar-secondary-actions');
+        if (actions) actions.style.display = 'none';
+      }
+      // Inline bar (feed mode)
       var inlineBar = document.getElementById('inlineMsgBar-' + activeCardId);
-      if (inlineBar) inlineBar.classList.remove('visible');
+      if (inlineBar) {
+        var body2 = inlineBar.querySelector('.message-bar-body');
+        if (body2) body2.textContent = 'Thanks for your feedback.';
+        var actions2 = inlineBar.querySelector('.message-bar-secondary-actions');
+        if (actions2) actions2.style.display = 'none';
+      }
     }
     showToast('Thanks for your feedback!');
   }
@@ -1099,7 +1121,17 @@
     });
     // Reset message bars
     document.querySelectorAll('.message-bar').forEach(function(m) { m.classList.remove('visible'); });
-    document.querySelectorAll('.inline-message-bar').forEach(function(m) { m.classList.remove('visible'); });
+    // Clear dynamically inserted page-level bars (Option 2)
+    var msgContainer = document.getElementById('msgBarContainer-2');
+    if (msgContainer) msgContainer.innerHTML = '';
+    // Restore inline message bar states
+    document.querySelectorAll('.inline-message-bar').forEach(function(m) {
+      m.classList.remove('visible');
+      var body = m.querySelector('.message-bar-body');
+      if (body) body.textContent = 'Suggestion dismissed.';
+      var act = m.querySelector('.message-bar-secondary-actions');
+      if (act) act.style.display = '';
+    });
     // Reset dialogs
     document.querySelectorAll('.dialog-overlay').forEach(function(d) { d.classList.remove('visible'); });
     document.body.style.overflow = '';
